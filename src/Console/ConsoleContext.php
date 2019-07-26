@@ -64,13 +64,13 @@ class ConsoleContext
 
         $this->injector = new DependencyInjector();
 
-        $configPath = Env::rootDir() . DIRECTORY_SEPARATOR . (Env::get("config.path") ?? "config");
+        $configPath = Env::toLocalPath(Env::get("config.path") ?? "config");
 
         $this->configProvider = new ConfigProvider(Env::get("config.driver") ?? "php", Env::get("config.env"), $configPath);
         
         // Register the config provider
         $this->injector->getContainer()->add(IConfigProvider::class, [ "reference" => $this->configProvider ]);
-        
+
         // Configure the console applications
         $consoleConfig =  $this->configProvider->getConfig("console");
 
@@ -89,6 +89,16 @@ class ConsoleContext
         {
             $this->defaultApp = $consoleConfig->get("default");
         }
+    }
+
+    public function getRootDirectory() : string
+    {
+        return Env::getRootDirectory();
+    }
+
+    public function toLocalPath(string $path) : string
+    {
+        return Env::toLocalPath($path);
     }
 
     public function getConfigProvider() : IConfigProvider
@@ -125,6 +135,16 @@ class ConsoleContext
         $app = $this->resolve($appName);
 
         return $this->execute($app);
+    }
+
+    public function getArgumentsCount() : int
+    {
+        return $this->argc;
+    }
+
+    public function getArguments() : array
+    {
+        return $this->argv;
     }
 
     private function resolve(string $appName) : ICommand

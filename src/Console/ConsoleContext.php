@@ -9,7 +9,7 @@ namespace Gekko\Console;
 
 use \Gekko\Env;
 use \Gekko\Config\{ ConfigProvider, IConfigProvider };
-use \Gekko\DependencyInjection\DependencyInjector;
+use \Gekko\DependencyInjection\{IDependencyInjector, DependencyInjector};
 
 class ConsoleContext
 {
@@ -64,6 +64,8 @@ class ConsoleContext
 
         $this->injector = new DependencyInjector();
 
+        $this->injector->getContainer()->add(ConsoleContext::class, [ "reference" => $this ]);
+
         $configPath = Env::toLocalPath(Env::get("config.path") ?? "config");
 
         $this->configProvider = new ConfigProvider(Env::get("config.driver") ?? "php", Env::get("config.env"), $configPath);
@@ -104,6 +106,11 @@ class ConsoleContext
     public function getConfigProvider() : IConfigProvider
     {
         return $this->configProvider;
+    }
+
+    public function getInjector() : IDependencyInjector
+    {
+        return $this->injector;
     }
 
     public function register(string $appName, string $appClass, bool $default = false)
